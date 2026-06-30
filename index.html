@@ -1,55 +1,114 @@
-# InumBE
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Inumbe AI</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #0f0f0f;
-      color: white;
-      text-align: center;
-    }
-    h1 {
-      margin-top: 40px;
-    }
-  </style>
-</head>
-<body>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-  <h1>Inumbe AI 🤖</h1>
-  <p>Seu assistente está abaixo</p>
+const GRID = 8;
+const SIZE = 60;
 
-  <!-- Chatbase Embed -->
-  <script>
-  (function(){
-    if(!window.chatbase||window.chatbase("getState")!=="initialized"){
-      window.chatbase=(...arguments)=>{
-        if(!window.chatbase.q){window.chatbase.q=[]}
-        window.chatbase.q.push(arguments)
-      };
-      window.chatbase=new Proxy(window.chatbase,{
-        get(target,prop){
-          if(prop==="q"){return target.q}
-          return(...args)=>target(prop,...args)
+canvas.width = GRID * SIZE;
+canvas.height = GRID * SIZE;
+
+const colors = [
+    "#ff4757",
+    "#1e90ff",
+    "#2ed573",
+    "#ffa502",
+    "#a55eea",
+    "#00d2d3"
+];
+
+let board = [];
+
+for (let y = 0; y < GRID; y++) {
+    board[y] = [];
+    for (let x = 0; x < GRID; x++) {
+        board[y][x] = 0;
+    }
+}
+
+function drawBoard() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(let y=0;y<GRID;y++){
+        for(let x=0;x<GRID;x++){
+
+            ctx.strokeStyle="#555";
+            ctx.strokeRect(x*SIZE,y*SIZE,SIZE,SIZE);
+
+            if(board[y][x]){
+                ctx.fillStyle=board[y][x];
+                ctx.fillRect(
+                    x*SIZE+4,
+                    y*SIZE+4,
+                    SIZE-8,
+                    SIZE-8
+                );
+            }
         }
-      })
     }
-    const onLoad=function(){
-      const script=document.createElement("script");
-      script.src="https://www.chatbase.co/embed.min.js";
-      script.id="EEhQiHpWVdyJgwbATfZ6E";
-      document.body.appendChild(script);
-    }
-    if(document.readyState==="complete"){
-      onLoad()
-    }else{
-      window.addEventListener("load",onLoad)
-    }
-  })();
-  </script>
+}
 
-</body>
-</html>
+canvas.addEventListener("click",e=>{
+
+    const rect=canvas.getBoundingClientRect();
+
+    const x=Math.floor((e.clientX-rect.left)/SIZE);
+    const y=Math.floor((e.clientY-rect.top)/SIZE);
+
+    if(board[y][x]==0){
+        board[y][x]=colors[Math.floor(Math.random()*colors.length)];
+    }
+
+    checkLines();
+    drawBoard();
+
+});
+
+function checkLines(){
+
+    for(let y=0;y<GRID;y++){
+
+        let full=true;
+
+        for(let x=0;x<GRID;x++){
+
+            if(board[y][x]==0){
+                full=false;
+            }
+
+        }
+
+        if(full){
+
+            for(let x=0;x<GRID;x++){
+                board[y][x]=0;
+            }
+
+        }
+
+    }
+
+    for(let x=0;x<GRID;x++){
+
+        let full=true;
+
+        for(let y=0;y<GRID;y++){
+
+            if(board[y][x]==0){
+                full=false;
+            }
+
+        }
+
+        if(full){
+
+            for(let y=0;y<GRID;y++){
+                board[y][x]=0;
+            }
+
+        }
+
+    }
+
+}
+
+drawBoard();
